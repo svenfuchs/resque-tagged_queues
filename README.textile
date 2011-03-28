@@ -1,0 +1,18 @@
+h1. Resque::TaggedQueues
+
+Tagged queues for "Resque":http://github.com/defunkt/resque.
+
+In "travis-ci":http://github.com/travis-ci/travis-ci we need workers to be able to only pull jobs that match their capabilities. E.g. a build job might be configured to require Postges or MongoDB. Then a worker should only pull that job if it has that capability.
+
+Resque::TaggedQueues tackles this problem by defining a tagging syntax for queue names. Before pulling a job it will find all queues from Redis for which the worker has all tags that the queue requires.
+
+E.g.:
+
+Lets say the worker has 1.8.7, 1.9.2 and ree installed but it does not support jruby. It can define that by using a queue like `builds[1.8.7,1.9.2,ree]`.
+
+Now the application queues jobs in the queues `builds[1.8.7]`, `builds[1.9.2]` and `builds[jruby]`. Then the worker will pull the jobs from `builds[1.8.7]` and `builds[1.9.2]` but ignore the one in `builds[jruby]`.
+
+
+h3. Running the tests
+
+@$ ruby -rubygems -Ilib -Itest test/tagged_queues_test.rb@
